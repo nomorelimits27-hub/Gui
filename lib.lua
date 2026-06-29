@@ -89,10 +89,6 @@ function SimpleKavo.CreateLib(title, themeName)
         table.insert(themeNames, name)
     end
     
-    -- Store all elements for search
-    local allElements = {}
-    local searchResults = {}
-    
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Parent = game.CoreGui
     ScreenGui.Name = "SimpleKavo_"..tostring(math.random(1, 10000))
@@ -103,91 +99,40 @@ function SimpleKavo.CreateLib(title, themeName)
     Main.Parent = ScreenGui
     Main.BackgroundColor3 = currentTheme.Background
     Main.Position = UDim2.new(0.3, 0, 0.3, 0)
-    Main.Size = UDim2.new(0, 500, 0, 400)
+    Main.Size = UDim2.new(0, 500, 0, 350)
     Main.ClipsDescendants = true
     
     local MainCorner = Instance.new("UICorner")
     MainCorner.CornerRadius = UDim.new(0, 6)
     MainCorner.Parent = Main
     
-    -- ============================================================
-    -- HEADER WITH ICON
-    -- ============================================================
     local Header = Instance.new("Frame")
     Header.Name = "Header"
     Header.Parent = Main
     Header.BackgroundColor3 = currentTheme.Header
-    Header.Size = UDim2.new(1, 0, 0, 40)
+    Header.Size = UDim2.new(1, 0, 0, 30)
     
     local HeaderCorner = Instance.new("UICorner")
     HeaderCorner.CornerRadius = UDim.new(0, 6)
     HeaderCorner.Parent = Header
     
-    -- ICON (Custom Logo)
-    local Icon = Instance.new("ImageLabel")
-    Icon.Name = "Icon"
-    Icon.Parent = Header
-    Icon.Size = UDim2.new(0, 24, 0, 24)
-    Icon.Position = UDim2.new(0, 8, 0.5, -12)
-    Icon.BackgroundTransparency = 1
-    Icon.Image = "rbxassetid://6031098375" -- Change this to your own image ID
-    Icon.ImageColor3 = currentTheme.SchemeColor
-    
-    -- Title with icon spacing
     local Title = Instance.new("TextLabel")
     Title.Parent = Header
     Title.BackgroundTransparency = 1
-    Title.Position = UDim2.new(0, 38, 0, 0)
-    Title.Size = UDim2.new(0.3, 0, 1, 0)
-    Title.Font = Enum.Font.GothamBold
+    Title.Position = UDim2.new(0.05, 0, 0, 0)
+    Title.Size = UDim2.new(0.4, 0, 1, 0)
+    Title.Font = Enum.Font.Gotham
     Title.Text = title
     Title.TextColor3 = currentTheme.TextColor
     Title.TextSize = 16
     Title.TextXAlignment = Enum.TextXAlignment.Left
     
-    -- ============================================================
-    -- SEARCH BAR
-    -- ============================================================
-    local SearchBar = Instance.new("Frame")
-    SearchBar.Name = "SearchBar"
-    SearchBar.Parent = Header
-    SearchBar.Size = UDim2.new(0.25, 0, 0, 26)
-    SearchBar.Position = UDim2.new(0.35, 0, 0.5, -13)
-    SearchBar.BackgroundColor3 = currentTheme.ElementColor
-    SearchBar.BackgroundTransparency = 0.3
-    
-    local SearchCorner = Instance.new("UICorner")
-    SearchCorner.CornerRadius = UDim.new(0, 4)
-    SearchCorner.Parent = SearchBar
-    
-    local SearchIcon = Instance.new("TextLabel")
-    SearchIcon.Parent = SearchBar
-    SearchIcon.Size = UDim2.new(0, 20, 1, 0)
-    SearchIcon.Position = UDim2.new(0, 4, 0, 0)
-    SearchIcon.BackgroundTransparency = 1
-    SearchIcon.Text = "🔍"
-    SearchIcon.TextColor3 = currentTheme.TextColor
-    SearchIcon.TextSize = 12
-    SearchIcon.Font = Enum.Font.Gotham
-    
-    local SearchBox = Instance.new("TextBox")
-    SearchBox.Name = "SearchBox"
-    SearchBox.Parent = SearchBar
-    SearchBox.Size = UDim2.new(1, -28, 1, 0)
-    SearchBox.Position = UDim2.new(0, 24, 0, 0)
-    SearchBox.BackgroundTransparency = 1
-    SearchBox.Text = "Search features..."
-    SearchBox.TextColor3 = currentTheme.TextColor
-    SearchBox.TextSize = 12
-    SearchBox.Font = Enum.Font.Gotham
-    SearchBox.ClearTextOnFocus = false
-    
     -- Theme Dropdown
     local ThemeDropdownFrame = Instance.new("Frame")
     ThemeDropdownFrame.Parent = Header
     ThemeDropdownFrame.BackgroundTransparency = 1
-    ThemeDropdownFrame.Position = UDim2.new(0.62, 0, 0, 0)
-    ThemeDropdownFrame.Size = UDim2.new(0.2, 0, 1, 0)
+    ThemeDropdownFrame.Position = UDim2.new(0.5, 0, 0, 0)
+    ThemeDropdownFrame.Size = UDim2.new(0.35, 0, 1, 0)
     
     local ThemeButton = Instance.new("TextButton")
     ThemeButton.Parent = ThemeDropdownFrame
@@ -197,7 +142,7 @@ function SimpleKavo.CreateLib(title, themeName)
     ThemeButton.Font = Enum.Font.Gotham
     ThemeButton.Text = themeName or "DefaultTheme"
     ThemeButton.TextColor3 = currentTheme.TextColor
-    ThemeButton.TextSize = 11
+    ThemeButton.TextSize = 12
     ThemeButton.AutoButtonColor = false
     
     local ThemeButtonCorner = Instance.new("UICorner")
@@ -227,18 +172,16 @@ function SimpleKavo.CreateLib(title, themeName)
         currentTheme = Themes[newThemeName]
         ThemeButton.Text = newThemeName
         
+        -- Update all UI elements with new theme colors
         Main.BackgroundColor3 = currentTheme.Background
         Header.BackgroundColor3 = currentTheme.Header
         Title.TextColor3 = currentTheme.TextColor
-        Icon.ImageColor3 = currentTheme.SchemeColor
         ThemeButton.BackgroundColor3 = currentTheme.ElementColor
         ThemeButton.TextColor3 = currentTheme.TextColor
         ThemeOptionsFrame.BackgroundColor3 = currentTheme.ElementColor
-        SearchBar.BackgroundColor3 = currentTheme.ElementColor
-        SearchBox.TextColor3 = currentTheme.TextColor
-        SearchIcon.TextColor3 = currentTheme.TextColor
         TabsScroll.ScrollBarImageColor3 = currentTheme.SchemeColor
         
+        -- Update tab buttons and content
         for _, tab in pairs(TabsHolder:GetChildren()) do
             if tab:IsA("TextButton") then
                 tab.TextColor3 = currentTheme.TextColor
@@ -246,6 +189,7 @@ function SimpleKavo.CreateLib(title, themeName)
             end
         end
         
+        -- Update content elements recursively
         local function updateContent(frame)
             for _, child in pairs(frame:GetChildren()) do
                 if child:IsA("TextLabel") or child:IsA("TextButton") then
@@ -279,7 +223,7 @@ function SimpleKavo.CreateLib(title, themeName)
             OptionButton.Font = Enum.Font.Gotham
             OptionButton.Text = theme
             OptionButton.TextColor3 = currentTheme.TextColor
-            OptionButton.TextSize = 11
+            OptionButton.TextSize = 12
             OptionButton.AutoButtonColor = false
             
             local OptionCorner = Instance.new("UICorner")
@@ -321,7 +265,6 @@ function SimpleKavo.CreateLib(title, themeName)
         end
     end)
     
-    -- Close Button
     local Close = Instance.new("ImageButton")
     Close.Parent = Header
     Close.BackgroundTransparency = 1
@@ -337,7 +280,6 @@ function SimpleKavo.CreateLib(title, themeName)
         ScreenGui:Destroy()
     end)
     
-    -- Minimize Button
     local Minimize = Instance.new("ImageButton")
     Minimize.Parent = ScreenGui
     Minimize.Name = "MinimizeButton"
@@ -367,21 +309,18 @@ function SimpleKavo.CreateLib(title, themeName)
         if Minimized then
             Tween(Main, {Size = UDim2.new(0, 0, 0, 0)})
         else
-            Tween(Main, {Size = UDim2.new(0, 500, 0, 400)})
+            Tween(Main, {Size = UDim2.new(0, 500, 0, 350)})
         end
     end)
     
     SimpleKavo:DraggingEnabled(Header, Main)
     
-    -- ============================================================
-    -- TABS
-    -- ============================================================
     local TabsScroll = Instance.new("ScrollingFrame")
     TabsScroll.Name = "TabsScroll"
     TabsScroll.Parent = Main
     TabsScroll.BackgroundTransparency = 1
-    TabsScroll.Position = UDim2.new(0, 20, 0, 40)
-    TabsScroll.Size = UDim2.new(0, 140, 1, -40)
+    TabsScroll.Position = UDim2.new(0, 20, 0, 30)
+    TabsScroll.Size = UDim2.new(0, 140, 1, -30)
     TabsScroll.ScrollBarThickness = 5
     TabsScroll.ScrollBarImageColor3 = currentTheme.SchemeColor
     TabsScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -413,68 +352,12 @@ function SimpleKavo.CreateLib(title, themeName)
     Content.Name = "Content"
     Content.Parent = Main
     Content.BackgroundTransparency = 1
-    Content.Position = UDim2.new(0, 150, 0, 40)
-    Content.Size = UDim2.new(1, -150, 1, -40)
+    Content.Position = UDim2.new(0, 150, 0, 30)
+    Content.Size = UDim2.new(1, -150, 1, -30)
     
     local tabsOrder = {}
     local currentTab = nil
     
-    -- ============================================================
-    -- SEARCH FUNCTION
-    -- ============================================================
-    local function performSearch(query)
-        query = string.lower(query)
-        
-        -- Store all elements and their visibility
-        for _, element in ipairs(allElements) do
-            local visible = false
-            if query == "" or query == "search features..." then
-                visible = true
-            else
-                local name = string.lower(element.Name or "")
-                local text = string.lower(element.Text or "")
-                local desc = string.lower(element.Description or "")
-                if string.find(name, query) or string.find(text, query) or string.find(desc, query) then
-                    visible = true
-                end
-            end
-            element.Visible = visible
-        end
-        
-        -- Update canvas after search
-        for _, tab in ipairs(tabsOrder) do
-            if tab.content then
-                tab.content.CanvasSize = UDim2.new(0, 0, 0, 0)
-                local total = 0
-                for _, child in ipairs(tab.content:GetChildren()) do
-                    if child:IsA("Frame") and child.Visible then
-                        total = total + child.AbsoluteSize.Y + 10
-                    end
-                end
-                tab.content.CanvasSize = UDim2.new(0, 0, 0, total)
-            end
-        end
-    end
-    
-    SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
-        performSearch(SearchBox.Text)
-    end)
-    
-    SearchBox.FocusLost:Connect(function()
-        if SearchBox.Text == "" then
-            SearchBox.Text = "Search features..."
-        end
-    end)
-    
-    SearchBox.Focused:Connect(function()
-        if SearchBox.Text == "Search features..." then
-            SearchBox.Text = ""
-        end
-    end)
-    
-    -- ============================================================
-    -- ADD TAB
-    -- ============================================================
     function SimpleKavo:AddTab(name)
         local TabButton = Instance.new("TextButton")
         TabButton.Name = name
@@ -580,13 +463,6 @@ function SimpleKavo.CreateLib(title, themeName)
             
             local SectionFunctions = {}
             
-            -- Helper to register element for search
-            local function registerElement(element, name, desc)
-                element.Name = name
-                element.Description = desc or ""
-                table.insert(allElements, element)
-            end
-            
             function SectionFunctions:NewButton(name, description, callback)
                 local elementOrder = #SectionContent:GetChildren()
                 
@@ -638,7 +514,6 @@ function SimpleKavo.CreateLib(title, themeName)
                 end)
                 
                 Button.Parent = SectionContent
-                registerElement(Button, name, description)
                 return Button
             end
             
@@ -712,7 +587,6 @@ function SimpleKavo.CreateLib(title, themeName)
                 end)
                 
                 ToggleFrame.Parent = SectionContent
-                registerElement(ToggleFrame, name, description)
                 return ToggleFrame
             end
             
@@ -774,7 +648,7 @@ function SimpleKavo.CreateLib(title, themeName)
                 OptionsList.HorizontalAlignment = Enum.HorizontalAlignment.Left
                 
                 local function createOptions()
-                    for _, child in pairs(OptionsFrame:GetChildren()) do
+                    for _, child in ipairs(OptionsFrame:GetChildren()) do
                         if child:IsA("TextButton") then child:Destroy() end
                     end
                     
@@ -893,7 +767,6 @@ function SimpleKavo.CreateLib(title, themeName)
                     DropdownFrame[name] = func
                 end
                 
-                registerElement(DropdownFrame, name, "")
                 return DropdownFrame
             end
             
@@ -967,7 +840,6 @@ function SimpleKavo.CreateLib(title, themeName)
                 end)
                 
                 SliderFrame.Parent = SectionContent
-                registerElement(SliderFrame, name, "")
                 return SliderFrame
             end
             
@@ -990,7 +862,7 @@ function SimpleKavo.CreateLib(title, themeName)
             if Minimized then
                 Tween(Main, {Size = UDim2.new(0, 0, 0, 0)})
             else
-                Tween(Main, {Size = UDim2.new(0, 500, 0, 400)})
+                Tween(Main, {Size = UDim2.new(0, 500, 0, 350)})
             end
         end,
         ChangeTheme = function(newThemeName)
