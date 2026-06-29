@@ -1,5 +1,5 @@
 -- Aurora GUI - Modern Glassmorphic Design
--- Made for Pilgrammed
+-- Full compatibility with both Add and New methods
 
 local Aurora = {}
 Aurora.__index = Aurora
@@ -7,7 +7,6 @@ Aurora.__index = Aurora
 -- Services
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
 
@@ -82,27 +81,13 @@ local function Tween(obj, props, duration)
     return tween
 end
 
-local function CreateGlow(parent, color)
-    local glow = Instance.new("ImageLabel")
-    glow.Name = "Glow"
-    glow.Parent = parent
-    glow.Size = UDim2.new(2, 0, 2, 0)
-    glow.Position = UDim2.new(-0.5, 0, -0.5, 0)
-    glow.BackgroundTransparency = 1
-    glow.Image = "rbxassetid://5028857083"
-    glow.ImageColor3 = color
-    glow.ImageTransparency = 0.6
-    glow.ZIndex = 0
-    return glow
-end
-
 -- Main Library
 function Aurora:CreateLib(title, schemeName)
     local self = setmetatable({}, Aurora)
     self.Scheme = ColorSchemes[schemeName] or ColorSchemes.Ocean
     self.Tabs = {}
     self.CurrentTab = nil
-    self.Windows = {}
+    self.TabsData = {}
     
     -- Main ScreenGui
     self.Gui = Instance.new("ScreenGui")
@@ -110,12 +95,6 @@ function Aurora:CreateLib(title, schemeName)
     self.Gui.Parent = lp:WaitForChild("PlayerGui")
     self.Gui.ResetOnSpawn = false
     self.Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    
-    -- Blur Background
-    local blur = Instance.new("BlurEffect")
-    blur.Name = "AuroraBlur"
-    blur.Parent = game:GetService("Lighting")
-    blur.Size = 0
     
     -- Main Frame
     self.Main = Instance.new("Frame")
@@ -127,7 +106,6 @@ function Aurora:CreateLib(title, schemeName)
     self.Main.BackgroundTransparency = 0.15
     self.Main.ClipsDescendants = true
     
-    -- Main Corner
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 16)
     corner.Parent = self.Main
@@ -146,12 +124,6 @@ function Aurora:CreateLib(title, schemeName)
     local borderCorner = Instance.new("UICorner")
     borderCorner.CornerRadius = UDim.new(0, 16)
     borderCorner.Parent = border
-    
-    -- Glow effect behind main
-    local mainGlow = CreateGlow(self.Main, self.Scheme.Glow)
-    mainGlow.Size = UDim2.new(1.5, 0, 1.5, 0)
-    mainGlow.Position = UDim2.new(-0.25, 0, -0.25, 0)
-    mainGlow.ImageTransparency = 0.85
     
     -- Title Bar
     self.Header = Instance.new("Frame")
@@ -174,16 +146,16 @@ function Aurora:CreateLib(title, schemeName)
     headerGradCorner.Parent = headerGrad
     
     -- Title
-    local title = Instance.new("TextLabel")
-    title.Parent = self.Header
-    title.BackgroundTransparency = 1
-    title.Position = UDim2.new(0, 18, 0, 0)
-    title.Size = UDim2.new(0.5, 0, 1, 0)
-    title.Font = Enum.Font.GothamBold
-    title.Text = "✦ " .. title
-    title.TextColor3 = self.Scheme.Text
-    title.TextSize = 18
-    title.TextXAlignment = Enum.TextXAlignment.Left
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Parent = self.Header
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, 18, 0, 0)
+    titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.Text = "✦ " .. title
+    titleLabel.TextColor3 = self.Scheme.Text
+    titleLabel.TextSize = 18
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     
     -- Status dot
     local dot = Instance.new("Frame")
@@ -302,20 +274,20 @@ function Aurora:CreateLib(title, schemeName)
     self.TabContainer.BackgroundTransparency = 0.1
     
     -- Tab Scroll
-    local tabScroll = Instance.new("ScrollingFrame")
-    tabScroll.Name = "TabScroll"
-    tabScroll.Parent = self.TabContainer
-    tabScroll.Size = UDim2.new(1, 0, 1, 0)
-    tabScroll.BackgroundTransparency = 1
-    tabScroll.BorderSizePixel = 0
-    tabScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    tabScroll.ScrollBarThickness = 2
-    tabScroll.ScrollBarImageColor3 = self.Scheme.Primary
+    self.TabList = Instance.new("ScrollingFrame")
+    self.TabList.Name = "TabScroll"
+    self.TabList.Parent = self.TabContainer
+    self.TabList.Size = UDim2.new(1, 0, 1, 0)
+    self.TabList.BackgroundTransparency = 1
+    self.TabList.BorderSizePixel = 0
+    self.TabList.CanvasSize = UDim2.new(0, 0, 0, 0)
+    self.TabList.ScrollBarThickness = 2
+    self.TabList.ScrollBarImageColor3 = self.Scheme.Primary
     
-    local tabList = Instance.new("UIListLayout")
-    tabList.Parent = tabScroll
-    tabList.Padding = UDim.new(0, 5)
-    tabList.SortOrder = Enum.SortOrder.LayoutOrder
+    local tabLayout = Instance.new("UIListLayout")
+    tabLayout.Parent = self.TabList
+    tabLayout.Padding = UDim.new(0, 5)
+    tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
     
     -- Content Container (Right Side)
     self.Content = Instance.new("Frame")
@@ -337,34 +309,10 @@ function Aurora:CreateLib(title, schemeName)
     self.ContentScroll.ScrollBarImageColor3 = self.Scheme.Primary
     self.ContentScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
     
-    local contentList = Instance.new("UIListLayout")
-    contentList.Parent = self.ContentScroll
-    contentList.Padding = UDim.new(0, 8)
-    contentList.SortOrder = Enum.SortOrder.LayoutOrder
-    
-    -- Tabs Data
-    self.TabsData = {}
-    self.TabList = tabScroll
-    self.ContentList = contentList
-    self.TabButtons = {}
-    
-    -- Minimize Button (Floating)
-    self.FloatMin = Instance.new("TextButton")
-    self.FloatMin.Name = "FloatMin"
-    self.FloatMin.Parent = self.Gui
-    self.FloatMin.Size = UDim2.new(0, 40, 0, 40)
-    self.FloatMin.Position = UDim2.new(0.5, -20, 0.95, -20)
-    self.FloatMin.BackgroundColor3 = self.Scheme.Background
-    self.FloatMin.BackgroundTransparency = 0.3
-    self.FloatMin.Text = "✦"
-    self.FloatMin.TextColor3 = self.Scheme.Text
-    self.FloatMin.TextSize = 20
-    self.FloatMin.Font = Enum.Font.GothamBold
-    self.FloatMin.Visible = false
-    
-    local floatCorner = Instance.new("UICorner")
-    floatCorner.CornerRadius = UDim.new(0, 12)
-    floatCorner.Parent = self.FloatMin
+    local contentLayout = Instance.new("UIListLayout")
+    contentLayout.Parent = self.ContentScroll
+    contentLayout.Padding = UDim.new(0, 8)
+    contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
     
     -- Auto-update canvas
     self.ContentScroll.ChildAdded:Connect(function()
@@ -373,6 +321,9 @@ function Aurora:CreateLib(title, schemeName)
     self.ContentScroll.ChildRemoved:Connect(function()
         self:UpdateCanvas()
     end)
+    
+    -- Compatibility: store methods for New* support
+    self._sectionCache = {}
     
     return self
 end
@@ -387,6 +338,25 @@ function Aurora:UpdateCanvas()
         end
     end
     self.ContentScroll.CanvasSize = UDim2.new(0, 0, 0, math.max(total, self.ContentScroll.AbsoluteSize.Y + 10))
+end
+
+function Aurora:SelectTab(tabData)
+    for _, tab in ipairs(self.TabsData) do
+        if tab.Content then
+            tab.Content.Visible = false
+            tab.Button.BackgroundColor3 = self.Scheme.Card
+            tab.Button.BackgroundTransparency = 0.5
+            tab.Button.TextColor3 = self.Scheme.SubText
+        end
+    end
+    
+    tabData.Content.Visible = true
+    tabData.Button.BackgroundColor3 = self.Scheme.Primary
+    tabData.Button.BackgroundTransparency = 0.3
+    tabData.Button.TextColor3 = self.Scheme.Text
+    self.CurrentTab = tabData
+    
+    self:UpdateCanvas()
 end
 
 function Aurora:AddTab(name)
@@ -733,3 +703,116 @@ function Aurora:AddTab(name)
             
             local optionsFrame = Instance.new("Frame")
             optionsFrame.Parent = frame
+            optionsFrame.Size = UDim2.new(1, -10, 0, 0)
+            optionsFrame.Position = UDim2.new(0, 5, 0, 40)
+            optionsFrame.BackgroundColor3 = self.Scheme.Card
+            optionsFrame.BackgroundTransparency = 0.3
+            optionsFrame.Visible = false
+            optionsFrame.AutomaticSize = Enum.AutomaticSize.Y
+            optionsFrame.ClipsDescendants = true
+            
+            local optionsCorner = Instance.new("UICorner")
+            optionsCorner.CornerRadius = UDim.new(0, 8)
+            optionsCorner.Parent = optionsFrame
+            
+            local optionsList = Instance.new("UIListLayout")
+            optionsList.Parent = optionsFrame
+            optionsList.Padding = UDim.new(0, 2)
+            optionsList.SortOrder = Enum.SortOrder.LayoutOrder
+            
+            local function updateOptions()
+                for _, child in ipairs(optionsFrame:GetChildren()) do
+                    if child:IsA("TextButton") then child:Destroy() end
+                end
+                
+                for _, opt in ipairs(options) do
+                    local optBtn = Instance.new("TextButton")
+                    optBtn.Parent = optionsFrame
+                    optBtn.Size = UDim2.new(1, 0, 0, 28)
+                    optBtn.BackgroundTransparency = 0.8
+                    optBtn.Text = tostring(opt)
+                    optBtn.TextColor3 = self.Scheme.Text
+                    optBtn.TextSize = 12
+                    optBtn.Font = Enum.Font.Gotham
+                    
+                    optBtn.MouseButton1Click:Connect(function()
+                        selected = opt
+                        btn.Text = name .. ": " .. tostring(selected)
+                        open = false
+                        optionsFrame.Visible = false
+                        Tween(frame, {Size = UDim2.new(1, 0, 0, 36)}, 0.2)
+                        if callback then callback(opt) end
+                    end)
+                    
+                    optBtn.MouseEnter:Connect(function()
+                        Tween(optBtn, {BackgroundTransparency = 0.5}, 0.1)
+                    end)
+                    optBtn.MouseLeave:Connect(function()
+                        Tween(optBtn, {BackgroundTransparency = 0.8}, 0.1)
+                    end)
+                end
+            end
+            
+            updateOptions()
+            
+            btn.MouseButton1Click:Connect(function()
+                open = not open
+                if open then
+                    optionsFrame.Visible = true
+                    Tween(frame, {Size = UDim2.new(1, 0, 0, 36 + optionsList.AbsoluteContentSize.Y + 10)}, 0.2)
+                else
+                    Tween(frame, {Size = UDim2.new(1, 0, 0, 36)}, 0.2)
+                    task.wait(0.2)
+                    optionsFrame.Visible = false
+                end
+            end)
+            
+            return frame
+        end
+        
+        -- ============================================================
+        -- COMPATIBILITY METHODS (NewToggle, NewButton, NewSlider, NewSection)
+        -- These just call the Add methods so your main script works!
+        -- ============================================================
+        
+        function sectionMethods:NewSection(name)
+            return self:AddSection(name)
+        end
+        
+        function sectionMethods:NewToggle(name, description, callback)
+            return self:AddToggle(name, description, callback)
+        end
+        
+        function sectionMethods:NewButton(name, description, callback)
+            return self:AddButton(name, description, callback)
+        end
+        
+        function sectionMethods:NewSlider(name, min, max, default, callback)
+            return self:AddSlider(name, min, max, default, callback)
+        end
+        
+        function sectionMethods:NewDropdown(name, options, defaultOption, callback)
+            return self:AddDropdown(name, options, defaultOption, callback)
+        end
+        
+        return sectionMethods
+    end
+    
+    -- Also add compatibility methods at tab level
+    function methods:NewSection(name)
+        return self:AddSection(name)
+    end
+    
+    return methods
+end
+
+-- Global compatibility for the main script
+function Aurora:NewTab(name)
+    return self:AddTab(name)
+end
+
+function Aurora:ToggleUI()
+    self.Gui.Enabled = not self.Gui.Enabled
+end
+
+return Aurora
